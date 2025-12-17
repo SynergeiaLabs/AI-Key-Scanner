@@ -47,15 +47,15 @@ const yaml = __importStar(__nccwpck_require__(4281));
 // API key patterns
 const KEY_PATTERNS = {
     openai: {
-        pattern: /sk-[a-zA-Z0-9]{32,}/,
+        pattern: /\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b/g,
         name: 'OpenAI API Key'
     },
     anthropic: {
-        pattern: /sk-ant-[a-zA-Z0-9\-_]{95,}/,
+        pattern: /\bsk-ant-[A-Za-z0-9_-]{20,}\b/g,
         name: 'Anthropic API Key'
     },
     google: {
-        pattern: /AIza[0-9A-Za-z\-_]{35}/,
+        pattern: /\bAIza[0-9A-Za-z_-]{35}\b/g,
         name: 'Google AI API Key'
     }
 };
@@ -84,17 +84,21 @@ function shouldIgnorePath(filePath, config) {
     return false;
 }
 function matchesAllowlist(match, config) {
-    if (!config.allowlistRegex) {
+    if (!config.allowlistRegex || config.allowlistRegex.length === 0) {
         return false;
     }
-    try {
-        const regex = new RegExp(config.allowlistRegex);
-        return regex.test(match);
+    for (const regexStr of config.allowlistRegex) {
+        try {
+            const regex = new RegExp(regexStr);
+            if (regex.test(match)) {
+                return true;
+            }
+        }
+        catch (error) {
+            core.warning(`Invalid allowlist regex: ${regexStr} - ${error}`);
+        }
     }
-    catch (error) {
-        core.warning(`Invalid allowlist regex: ${error}`);
-        return false;
-    }
+    return false;
 }
 function scanForKeys(content, filePath, lineMap, config) {
     const matches = [];
@@ -103,8 +107,9 @@ function scanForKeys(content, filePath, lineMap, config) {
         const line = lines[contentLineIndex];
         const actualLineNumber = lineMap.get(contentLineIndex) || contentLineIndex + 1;
         for (const [key, { pattern, name }] of Object.entries(KEY_PATTERNS)) {
-            const regex = new RegExp(pattern.source, pattern.flags);
-            const lineMatches = line.matchAll(regex);
+            // Reset regex lastIndex for each line (global regexes maintain state)
+            pattern.lastIndex = 0;
+            const lineMatches = line.matchAll(pattern);
             for (const match of lineMatches) {
                 const matchText = match[0];
                 // Check allowlist
@@ -112,11 +117,19 @@ function scanForKeys(content, filePath, lineMap, config) {
                     core.debug(`Key in ${filePath}:${actualLineNumber} matches allowlist, skipping`);
                     continue;
                 }
+                // Create safe partial key display
+                let partialKey;
+                if (matchText.length > 24) {
+                    partialKey = matchText.substring(0, 8) + '…' + matchText.substring(matchText.length - 4);
+                }
+                else {
+                    partialKey = matchText.substring(0, 8) + '…';
+                }
                 matches.push({
                     file: filePath,
                     line: actualLineNumber,
                     keyType: name,
-                    match: matchText.substring(0, 20) + '...' // Only show partial key
+                    match: partialKey
                 });
             }
         }
@@ -187,6 +200,10 @@ function parseDiff(diff) {
             }
         }
         else if (currentFile) {
+            // Guard against diff headers appearing inside hunks
+            if (line.startsWith('+++ b/') || line.startsWith('--- a/')) {
+                continue;
+            }
             const firstChar = line.charAt(0);
             if (firstChar === '+') {
                 // Added line (not +++ header)
@@ -248,7 +265,7 @@ async function run() {
         const octokit = github.getOctokit(token);
         const context = github.context;
         if (context.eventName !== 'pull_request') {
-            core.setFailed('This action only works on pull_request events');
+            core.info('This action only works on pull_request events');
             return;
         }
         const prNumber = context.payload.pull_request?.number;
