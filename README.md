@@ -60,15 +60,17 @@ ignorePaths:
   - dist/
   - build/
 
-# Regular expression to allowlist certain key patterns
-# Keys matching this regex will be ignored
-allowlistRegex: "^test-.*"
+# Regular expressions to allowlist certain key patterns
+# Keys matching any of these regexes will be ignored
+allowlistRegex:
+  - "^test-.*"
+  - "^example-.*"
 ```
 
 #### Configuration Options
 
 - `ignorePaths` (optional): Array of file path substrings to exclude from scanning. Uses simple substring matching (not glob patterns). If any part of the file path contains the substring, it will be ignored.
-- `allowlistRegex` (optional): Regular expression pattern. Any detected keys matching this pattern will be ignored
+- `allowlistRegex` (optional): Array of regular expression patterns. Any detected keys matching any of these patterns will be ignored
 
 ### Inputs
 

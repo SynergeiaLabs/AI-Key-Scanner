@@ -104,11 +104,19 @@ function scanForKeys(
           continue;
         }
 
+        // Create safe partial key display
+        let partialKey: string;
+        if (matchText.length > 24) {
+          partialKey = matchText.substring(0, 8) + '…' + matchText.substring(matchText.length - 4);
+        } else {
+          partialKey = matchText.substring(0, 8) + '…';
+        }
+
         matches.push({
           file: filePath,
           line: actualLineNumber,
           keyType: name,
-          match: matchText.substring(0, 20) + '...' // Only show partial key
+          match: partialKey
         });
       }
     }
