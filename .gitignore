@@ -3,5 +3,6 @@ node_modules/
 .DS_Store
 .env
 *.tsbuildinfo
+dist-tmp/
 # Note: dist/ is included for GitHub Actions - the bundled code needs to be committed
 
