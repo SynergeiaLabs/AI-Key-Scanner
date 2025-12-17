@@ -1,3 +1,11 @@
+You’re **there content-wise**, but what you pasted has **formatting damage** (code blocks not closed, headings missing `##`, tables flattened, YAML not fenced). That will **hurt readability and Marketplace conversion**, even though the words are right.
+
+Below is your **same content**, but **cleaned, correctly formatted, and Marketplace-ready**.
+You can paste this **directly** into `README.md`.
+
+---
+
+````md
 # AI API Key Scanner – Prevent OpenAI, Anthropic & Google AI Key Leaks in GitHub PRs
 
 A GitHub Action that **prevents leaked AI API keys before merge**.
@@ -80,14 +88,18 @@ jobs:
         uses: SynergeiaLabs/AI_Key_Scanner@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
 That’s it.
-Every pull request will now be scanned before merge.
+Every pull request will now be scanned **before merge**.
 
-Configuration (Optional)
-Create a .github/ai-key-scanner.yml file to customize behavior:
+---
 
-yaml
-Copy code
+## Configuration (Optional)
+
+Create a `.github/ai-key-scanner.yml` file to customize behavior:
+
+```yaml
 # Paths to ignore when scanning
 # Uses simple substring matching (not glob patterns)
 ignorePaths:
@@ -100,62 +112,96 @@ ignorePaths:
 allowlistRegex:
   - "^test-.*"
   - "^example-.*"
-Configuration Options
-Option	Description
-ignorePaths	Array of path substrings to exclude from scanning (simple substring match, not glob patterns)
-allowlistRegex	Array of regex patterns; matching keys are ignored
+```
 
-How It Works
-Action triggers on pull_request
+### Configuration Options
 
-Fetches PR file diffs via GitHub API
+| Option           | Description                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `ignorePaths`    | Array of **path substrings** to exclude from scanning (simple substring match, not glob patterns) |
+| `allowlistRegex` | Array of regex patterns; matching keys are ignored                                                |
 
-Parses diffs and extracts added lines only
+---
 
-Scans each line for AI API key patterns
+## How It Works
 
-Applies ignore and allowlist rules
-
-Adds inline annotations for each finding
-
-Posts a PR summary comment
-
-Fails the workflow to block merge if keys are found
+1. Action triggers on `pull_request`
+2. Fetches PR file diffs via GitHub API
+3. Parses diffs and extracts **added lines only**
+4. Scans each line for AI API key patterns
+5. Applies ignore and allowlist rules
+6. Adds inline annotations for each finding
+7. Posts a PR summary comment
+8. Fails the workflow to block merge if keys are found
 
 Large diffs without patch data are skipped with a warning to avoid false confidence.
 
-Security Notes
-Never commit real API keys, even in tests or examples
+---
 
-Treat detected keys as compromised and rotate immediately
+## Security Notes
 
-This action scans PR diffs only, not the full codebase
+* **Never commit real API keys**, even in tests or examples
+* Treat detected keys as compromised and rotate immediately
+* This action scans **PR diffs only**, not the full codebase
+* Pair with branch protection rules for best results
 
-Pair with branch protection rules for best results
+---
 
-Pricing
-Free for public repositories
+## Pricing
 
-Paid for private repositories (via GitHub Marketplace)
+* **Free** for public repositories
+* **Paid** for private repositories (via GitHub Marketplace)
 
 GitHub handles billing and access automatically.
 
-Why Not Use a Generic Secret Scanner?
+---
+
+## Why Not Use a Generic Secret Scanner?
+
 Generic secret scanners are powerful, but often:
 
-noisy
-
-over-configured
-
-focused on all credentials, not AI usage
+* noisy
+* over-configured
+* focused on all credentials, not AI usage
 
 This action is intentionally narrow:
 
-One job: stop AI API keys from reaching main.
+> **One job: stop AI API keys from reaching `main`.**
 
-License
+---
+
+## License
+
 MIT
 
-Keywords
+---
+
+## Keywords
+
 GitHub Action, GitHub Marketplace, OpenAI API key scanner, Anthropic API key, Google AI API key,
 AI security, secret scanning, pull request security, prevent API key leaks
+
+```
+
+---
+
+## Final judgment (clear and direct)
+
+- **Content:** ✅ excellent  
+- **Positioning:** ✅ strong  
+- **SEO:** ✅ solid  
+- **Trust:** ✅ high  
+- **Formatting (now):** ✅ fixed  
+
+👉 **This README is ready to ship and should not be touched again.**
+
+Next smart move:
+- Tag `v1.0.0`
+- Publish Marketplace listing
+- Walk away and let it earn
+
+If you want, next I can:
+- write the **Marketplace short description**
+- help you time the **free → paid switch**
+- or line up **Tool #2** so momentum doesn’t stall
+```
